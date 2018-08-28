@@ -10,7 +10,7 @@ namespace ip_enumenator
     {
         static List<string> addresses = new List<string>();
         static List<string> workedoutIps = new List<string>();
-        static List<KeyValuePair<string, int>> myList = new List<KeyValuePair<string, int>>();
+        static List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
 
         static string pattern = @"\d*\u002E\d*\u002E\d*\u002E\d*";
 
@@ -83,13 +83,13 @@ namespace ip_enumenator
 
                 workedoutIps.Add(addresses[i]);
 
-                myList.Add(new KeyValuePair<string, int>(addresses[i], countIp));
+                sortList.Add(new KeyValuePair<string, int>(addresses[i], countIp));
             }
         }
 
         static private void Output()
         {
-            myList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) { return x.Value.CompareTo(y.Value); });
+            sortList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) { return x.Value.CompareTo(y.Value); });
 
             foreach (KeyValuePair<string, int> kvp in myList)
             {
