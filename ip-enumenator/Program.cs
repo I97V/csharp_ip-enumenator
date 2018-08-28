@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -9,15 +10,17 @@ namespace ip_enumenator
     {
         static List<string> addresses = new List<string>();
         static List<string> workedoutIps = new List<string>();
+        static List<KeyValuePair<string, int>> myList = new List<KeyValuePair<string, int>>();
 
         static string pattern = @"\d*\u002E\d*\u002E\d*\u002E\d*";
 
         static void Main(string[] args)
         {
             Console.WriteLine("Enter name of file (name.log): ");
-            string namefile = Console.ReadLine();
+            string namefile = Console.ReadLine() + ".log";
             FillArrayAddresses(namefile);
             Console.WriteLine("-----------------------------------------");
+            Formating();
             Output();
 
             Console.ReadKey();
@@ -40,7 +43,6 @@ namespace ip_enumenator
                             Match mtch = Regex.Match(sLine, pattern);
                             if (mtch.Success)
                             {
-                                //Console.WriteLine(mtch.Value);
                                 addresses.Add(mtch.Value);
                             }
                         }
@@ -64,7 +66,7 @@ namespace ip_enumenator
             return false;
         }
 
-        static private void Output()
+        static private void Formating()
         {
             for (int i = 0; i < addresses.Count; i++)
             {
@@ -79,10 +81,21 @@ namespace ip_enumenator
                         countIp++;
                 }
 
-                Console.WriteLine();
-                Console.WriteLine(addresses[i] + "\t Occurrences: " + countIp);
-                Console.WriteLine("_________________________________________");
                 workedoutIps.Add(addresses[i]);
+
+                myList.Add(new KeyValuePair<string, int>(addresses[i], countIp));
+            }
+        }
+
+        static private void Output()
+        {
+            myList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) { return x.Value.CompareTo(y.Value); });
+
+            foreach (KeyValuePair<string, int> kvp in myList)
+            {
+                Console.WriteLine();
+                Console.WriteLine(kvp.Key + "\t Occurrences: " + kvp.Value);
+                Console.WriteLine("_________________________________________");
             }
         }
     }
