@@ -8,8 +8,6 @@ namespace ip_enumenator
 {
     class Program
     {
-        static string namefile;
-
         static string pattern_ip = @"\d*\u002E\d*\u002E\d*\u002E\d*";
         static string pattern_error = @"\s\d{3}\s";
 
@@ -18,13 +16,35 @@ namespace ip_enumenator
         static List<string> workedoutErrors = new List<string>();
         static List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
 
+        // Settings
+        static string namefile;
+        static bool isToFile = false;
+        static bool isInverse = false;
+        static int border;
+
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter name of file (name.log): ");
+            File.Create("output.txt");
+
+            Console.WriteLine("File name: ");
             namefile = Console.ReadLine() + ".log";
+            Console.WriteLine("-----------------------------------------");
+
+            Console.WriteLine("Turn ON record in the file (y/n)?");
+            if (Console.ReadLine() == "y")
+                isToFile = true;
+            Console.WriteLine("-----------------------------------------");
+
+            Console.WriteLine("Inverse sorting (do big to small)?");
+            if (Console.ReadLine() == "y")
+                isInverse = true;
+            Console.WriteLine("-----------------------------------------");
+
+            Console.WriteLine("Enter the critical boundary of occurrences:");
+            border = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("-----------------------------------------");
 
             FillArrayAddresses(namefile);
-            Console.WriteLine("-----------------------------------------");
 
             Formating();
 
@@ -88,7 +108,8 @@ namespace ip_enumenator
 
                 workedoutIps.Add(addresses[i]);
 
-                sortList.Add(new KeyValuePair<string, int>(addresses[i], countIp));
+                if(border <= countIp)
+                    sortList.Add(new KeyValuePair<string, int>(addresses[i], countIp));
             }
         }
 
@@ -146,7 +167,13 @@ namespace ip_enumenator
 
         static private void Output()
         {
-            sortList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) { return x.Value.CompareTo(y.Value); });
+            sortList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) 
+                {
+                    if (isInverse)
+                        return y.Value.CompareTo(x.Value);
+                    else
+                        return x.Value.CompareTo(y.Value);
+                });
 
             using (StreamWriter sw = new StreamWriter("output.txt", true))
             {
@@ -163,7 +190,8 @@ namespace ip_enumenator
                     Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                     Console.WriteLine("_____________________________________________________________________________________________________");
 
-                    sw.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                    if(isToFile)
+                        sw.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                 }
             }
         }
