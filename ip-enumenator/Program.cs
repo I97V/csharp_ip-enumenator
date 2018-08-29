@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ip_enumenator
@@ -147,18 +148,23 @@ namespace ip_enumenator
         {
             sortList.Sort(delegate (KeyValuePair<string, int> x, KeyValuePair<string, int> y) { return x.Value.CompareTo(y.Value); });
 
-            foreach (KeyValuePair<string, int> kvp in sortList)
+            using (StreamWriter sw = new StreamWriter("output.txt", true))
             {
-                List<string> workedoutErrors = new List<string>();
-                string error_str = " ";
-                foreach(string error in GetErrorsList(kvp.Key))/*//*/
+                foreach (KeyValuePair<string, int> kvp in sortList)
                 {
-                    error_str += error;
-                }
+                    List<string> workedoutErrors = new List<string>();
+                    string error_str = " ";
+                    foreach (string error in GetErrorsList(kvp.Key))
+                    {
+                        error_str += error;
+                    }
 
-                Console.WriteLine();
-                Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: "+ error_str);
-                Console.WriteLine("_____________________________________________________________________________________________________");
+                    Console.WriteLine();
+                    Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                    Console.WriteLine("_____________________________________________________________________________________________________");
+
+                    sw.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                }
             }
         }
     }
