@@ -17,11 +17,13 @@ namespace ip_enumenator
         static List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
         static List<string> bans = new List<string>();
         static List<string> good = new List<string>();
+        static List<string> questionable = new List<string>();
 
         // Settings
         static string namefile;
         static string bansfile = "bans.txt";
         static string goodfile = "good.txt";
+        static string questionablefile = "questionable.txt";
         static bool isToFile = false;
         static bool isInverse = false;
         static int border;
@@ -51,6 +53,7 @@ namespace ip_enumenator
             FillArrayAddresses(namefile);
             FillArrayBans();
             FillArrayGood();
+            FillArrayQuestionable();
 
             Formating();
 
@@ -96,6 +99,29 @@ namespace ip_enumenator
 
                         if (sLine != null)
                             good.Add(sLine);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found");
+            }
+        }
+
+        static private void FillArrayQuestionable()
+        {
+            if (File.Exists(questionablefile))
+            {
+                using (StreamReader sr = new StreamReader(questionablefile))
+                {
+                    string sLine = "";
+
+                    while (sLine != null)
+                    {
+                        sLine = sr.ReadLine();
+
+                        if (sLine != null)
+                            questionable.Add(sLine);
                     }
                 }
             }
@@ -233,6 +259,7 @@ namespace ip_enumenator
                 {
                     bool isInListBan = false;
                     bool isInListGood = false;
+                    bool isInListQuestion = false;
 
                     List<string> workedoutErrors = new List<string>();
                     string error_str = " ";
@@ -273,7 +300,23 @@ namespace ip_enumenator
                         }
                     }
 
-                    if (!isInListGood && !isInListBan)
+                    foreach (string questionIp in questionable)
+                    {
+                        if (kvp.Key == questionIp)
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkYellow;
+                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            isInListQuestion = true;
+                            break;
+                        }
+                        else
+                        {
+                            isInListQuestion = false;
+                        }
+                    }
+
+                    if (!isInListGood && !isInListBan && !isInListQuestion)
                         Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
 
                     Console.WriteLine("_____________________________________________________________________________________________________");
