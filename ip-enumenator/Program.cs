@@ -16,16 +16,18 @@ namespace ip_enumenator
         static List<string> workedoutErrors = new List<string>();
         static List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
         static List<string> bans = new List<string>();
-        static List<string> good = new List<string>();
-        static List<string> questionable = new List<string>();
+        static List<string> goods = new List<string>();
+        static List<string> questionables = new List<string>();
 
         // Settings
         static string namefile;
         static string bansfile = "bans.txt";
         static string goodfile = "good.txt";
         static string questionablefile = "questionable.txt";
+
         static bool isToFile = false;
         static bool isInverse = false;
+
         static int border;
 
         static void Main(string[] args)
@@ -50,10 +52,10 @@ namespace ip_enumenator
             border = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("-----------------------------------------");
 
-            FillArrayAddresses(namefile);
-            FillArrayBans();
-            FillArrayGood();
-            FillArrayQuestionable();
+            FillArray(namefile, addresses, true);
+            FillArray("bans.txt", bans, false);
+            FillArray("good.txt", goods, false);
+            FillArray("questionable.txt", questionables, false);
 
             Formating();
 
@@ -62,11 +64,11 @@ namespace ip_enumenator
             Console.ReadKey();
         }
 
-        static private void FillArrayBans()
+        static private void FillArray(string _filename, List<string> _list, bool _relay)
         {
-            if (File.Exists(bansfile))
+            if (File.Exists(_filename))
             {
-                using (StreamReader sr = new StreamReader(bansfile))
+                using (StreamReader sr = new StreamReader(_filename))
                 {
                     string sLine = "";
 
@@ -74,81 +76,15 @@ namespace ip_enumenator
                     {
                         sLine = sr.ReadLine();
 
-                        if (sLine != null)
-                            bans.Add(sLine);
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("File not found");
-            }
-        }
+                        if (sLine != null && !_relay)
+                            _list.Add(sLine);
 
-        static private void FillArrayGood()
-        {
-            if (File.Exists(goodfile))
-            {
-                using (StreamReader sr = new StreamReader(goodfile))
-                {
-                    string sLine = "";
-
-                    while (sLine != null)
-                    {
-                        sLine = sr.ReadLine();
-
-                        if (sLine != null)
-                            good.Add(sLine);
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("File not found");
-            }
-        }
-
-        static private void FillArrayQuestionable()
-        {
-            if (File.Exists(questionablefile))
-            {
-                using (StreamReader sr = new StreamReader(questionablefile))
-                {
-                    string sLine = "";
-
-                    while (sLine != null)
-                    {
-                        sLine = sr.ReadLine();
-
-                        if (sLine != null)
-                            questionable.Add(sLine);
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("File not found");
-            }
-        }
-
-        static private void FillArrayAddresses(string _namefile)
-        {
-            if (File.Exists(_namefile))
-            {
-                using (StreamReader sr = new StreamReader(_namefile))
-                {
-                    string sLine = "";
-
-                    while (sLine != null)
-                    {
-                        sLine = sr.ReadLine();
-
-                        if (sLine != null)
+                        if (sLine != null && _relay)
                         {
                             Match mtch = Regex.Match(sLine, pattern_ip);
                             if (mtch.Success)
                             {
-                                addresses.Add(mtch.Value);
+                                _list.Add(mtch.Value);
                             }
                         }
                     }
@@ -284,7 +220,7 @@ namespace ip_enumenator
                             isInListBan = false;
                         }
                     }
-                    foreach (string goodIp in good)
+                    foreach (string goodIp in goods)
                     {
                         if (kvp.Key == goodIp)
                         {
@@ -300,7 +236,7 @@ namespace ip_enumenator
                         }
                     }
 
-                    foreach (string questionIp in questionable)
+                    foreach (string questionIp in questionables)
                     {
                         if (kvp.Key == questionIp)
                         {
@@ -317,7 +253,7 @@ namespace ip_enumenator
                     }
 
                     if (!isInListGood && !isInListBan && !isInListQuestion)
-                        Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                        Console.WriteLine("\t" + kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
 
                     Console.WriteLine("_____________________________________________________________________________________________________");
 
