@@ -15,9 +15,13 @@ namespace ip_enumenator
         static List<string> workedoutIps = new List<string>();
         static List<string> workedoutErrors = new List<string>();
         static List<KeyValuePair<string, int>> sortList = new List<KeyValuePair<string, int>>();
+        static List<string> bans = new List<string>();
+        static List<string> good = new List<string>();
 
         // Settings
         static string namefile;
+        static string bansfile = "bans.txt";
+        static string goodfile = "good.txt";
         static bool isToFile = false;
         static bool isInverse = false;
         static int border;
@@ -45,12 +49,60 @@ namespace ip_enumenator
             Console.WriteLine("-----------------------------------------");
 
             FillArrayAddresses(namefile);
+            FillArrayBans();
+            FillArrayGood();
 
             Formating();
 
             Output();
 
             Console.ReadKey();
+        }
+
+        static private void FillArrayBans()
+        {
+            if (File.Exists(bansfile))
+            {
+                using (StreamReader sr = new StreamReader(bansfile))
+                {
+                    string sLine = "";
+
+                    while (sLine != null)
+                    {
+                        sLine = sr.ReadLine();
+
+                        if (sLine != null)
+                            bans.Add(sLine);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found");
+            }
+        }
+
+        static private void FillArrayGood()
+        {
+            if (File.Exists(goodfile))
+            {
+                using (StreamReader sr = new StreamReader(goodfile))
+                {
+                    string sLine = "";
+
+                    while (sLine != null)
+                    {
+                        sLine = sr.ReadLine();
+
+                        if (sLine != null)
+                            good.Add(sLine);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found");
+            }
         }
 
         static private void FillArrayAddresses(string _namefile)
@@ -179,6 +231,9 @@ namespace ip_enumenator
             {
                 foreach (KeyValuePair<string, int> kvp in sortList)
                 {
+                    bool isInListBan = false;
+                    bool isInListGood = false;
+
                     List<string> workedoutErrors = new List<string>();
                     string error_str = " ";
                     foreach (string error in GetErrorsList(kvp.Key))
@@ -187,7 +242,40 @@ namespace ip_enumenator
                     }
 
                     Console.WriteLine();
-                    Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                    foreach (string banIp in bans)
+                    {
+                        if(kvp.Key == banIp)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            isInListBan = true;
+                            break;
+                        }
+                        else
+                        {
+                            isInListBan = false;
+                        }
+                    }
+                    foreach (string goodIp in good)
+                    {
+                        if (kvp.Key == goodIp)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            isInListGood = true;
+                            break;
+                        }
+                        else
+                        {
+                            isInListGood = false;
+                        }
+                    }
+
+                    if (!isInListGood && !isInListBan)
+                        Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+
                     Console.WriteLine("_____________________________________________________________________________________________________");
 
                     if (isToFile)
