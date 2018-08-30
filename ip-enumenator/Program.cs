@@ -274,7 +274,7 @@ namespace ip_enumenator
                         if(kvp.Key == banIp)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.WriteLine("BAN\t" + kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                             Console.ForegroundColor = ConsoleColor.White;
                             isInListBan = true;
                             break;
@@ -289,7 +289,7 @@ namespace ip_enumenator
                         if (kvp.Key == goodIp)
                         {
                             Console.ForegroundColor = ConsoleColor.Green;
-                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.WriteLine("GOOD\t" + kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                             Console.ForegroundColor = ConsoleColor.White;
                             isInListGood = true;
                             break;
@@ -305,7 +305,7 @@ namespace ip_enumenator
                         if (kvp.Key == questionIp)
                         {
                             Console.ForegroundColor = ConsoleColor.DarkYellow;
-                            Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                            Console.WriteLine("???\t" + kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                             Console.ForegroundColor = ConsoleColor.White;
                             isInListQuestion = true;
                             break;
