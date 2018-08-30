@@ -190,8 +190,21 @@ namespace ip_enumenator
                     Console.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
                     Console.WriteLine("_____________________________________________________________________________________________________");
 
-                    if(isToFile)
+                    if (isToFile)
                         sw.WriteLine(kvp.Key + "\t\t Occurrences: " + kvp.Value + "\t\t Errors type: " + error_str);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("|/////////////////////////////////////////////|");
+                Console.WriteLine("Unique occurrences:\t" + workedoutIps.Count);
+                Console.WriteLine("|/////////////////////////////////////////////|");
+
+                if (isToFile)
+                {
+                    sw.WriteLine();
+                    sw.WriteLine("|/////////////////////////////////////////////|");
+                    sw.WriteLine("Unique occurrences:\t" + workedoutIps.Count);
+                    sw.WriteLine("|/////////////////////////////////////////////|");
                 }
             }
         }
