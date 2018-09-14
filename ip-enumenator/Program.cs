@@ -27,8 +27,10 @@ namespace ip_enumenator
 
         static bool isToFile = false;
         static bool isInverse = false;
+        static bool isSelfPattern = false;
 
         static int border;
+        static string mask;
 
         static void Main(string[] args)
         {
@@ -43,19 +45,68 @@ namespace ip_enumenator
                 isToFile = true;
             Console.WriteLine("-----------------------------------------");
 
-            Console.WriteLine("Inverse sorting (do big to small)?");
+            Console.WriteLine("Inverse sorting (do big to small) (y/n)?");
             if (Console.ReadLine() == "y")
                 isInverse = true;
             Console.WriteLine("-----------------------------------------");
 
-            Console.WriteLine("Enter the critical boundary of occurrences:");
+            Console.WriteLine("Enter the critical boundary of occurrences (dec):");
             border = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("-----------------------------------------");
 
+            Console.WriteLine("Use mask (y/n)?");
+            if (Console.ReadLine() == "y")
+                isSelfPattern = true;
+            Console.WriteLine("-----------------------------------------");
+
+            if(isSelfPattern)
+            {
+                Console.WriteLine("Enter 1st mask (dec):");
+                mask = Console.ReadLine();
+                Console.WriteLine("-----------------------------------------");
+            }
+
+            Console.Clear();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("\t\t\t\t\t\t\tIP-enumenator");
+            Console.WriteLine("\t\t\t\t--------------------------------------------------");
+            Console.WriteLine();
+
+            WriteFormatLine("Filename", namefile, 0);
+
+            if(isToFile)
+                WriteFormatLine("Record--", "ON", 1);
+            else
+                WriteFormatLine("Record--", "OFF", 2);
+
+            if (isInverse)
+                WriteFormatLine("Inverse-", "big to small", 0);
+            else
+                WriteFormatLine("Inverse-", "small to big", 0);
+
+            WriteFormatLine("Bounder-", border.ToString(), 0);
+
+            if (isSelfPattern)
+                WriteFormatLine("Use mask", "ON", 1);
+            else
+                WriteFormatLine("Use mask", "OFF", 2);
+
+            WriteFormatLine("Mask is-", mask, 0);
+
+            Console.WriteLine();
+            Console.WriteLine("\t\t\t\t--------------------------------------------------");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.ReadKey();
+
             FillArray(namefile, addresses, true);
-            FillArray("bans.txt", bans, false);
-            FillArray("good.txt", goods, false);
-            FillArray("questionable.txt", questionables, false);
+            FillArray(bansfile, bans, false);
+            FillArray(goodfile, goods, false);
+            FillArray(questionablefile, questionables, false);
 
             Formating();
 
@@ -64,8 +115,39 @@ namespace ip_enumenator
             Console.ReadKey();
         }
 
+        static private void WriteFormatLine(string _prop, string _value, int _dColor)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("\t\t\t\t\t" + _prop);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("\t=\t");
+
+            switch (_dColor)
+            {
+                case 0:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case 1:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case 2:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+            }
+
+            Console.Write(_value);
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+        }
+
         static private void FillArray(string _filename, List<string> _list, bool _relay)
         {
+            Match mtch;
+
             if (File.Exists(_filename))
             {
                 using (StreamReader sr = new StreamReader(_filename))
@@ -81,7 +163,11 @@ namespace ip_enumenator
 
                         if (sLine != null && _relay)
                         {
-                            Match mtch = Regex.Match(sLine, pattern_ip);
+                            if (isSelfPattern)
+                                mtch = Regex.Match(sLine, mask +  @"\u002E\d*\u002E\d*\u002E\d*");
+                            else
+                                mtch = Regex.Match(sLine, pattern_ip);
+
                             if (mtch.Success)
                             {
                                 _list.Add(mtch.Value);
@@ -96,7 +182,7 @@ namespace ip_enumenator
             }
         }
 
-        static bool IsWasIp(string _str)
+        static private bool IsWasIp(string _str)
         {
             foreach (string s in workedoutIps)
             {
@@ -127,7 +213,7 @@ namespace ip_enumenator
             }
         }
 
-        static bool IsWasError(List<string> _list, string _error)
+        static private bool IsWasError(List<string> _list, string _error)
         {
             foreach (string s in _list)
             {
@@ -138,7 +224,7 @@ namespace ip_enumenator
             return false;
         }
 
-        static List<string> GetErrorsList(string ip)
+        static private List<string> GetErrorsList(string ip)
         {
             List<string> errors = new List<string>();
 
@@ -189,7 +275,7 @@ namespace ip_enumenator
                         return x.Value.CompareTo(y.Value);
                 });
 
-            using (StreamWriter sw = new StreamWriter("output.txt", true))
+            using (StreamWriter sw = new StreamWriter("output"+"-Mask_" + mask + "-Date_" + Path.GetFileNameWithoutExtension(namefile) + ".txt", true))
             {
                 foreach (KeyValuePair<string, int> kvp in sortList)
                 {
